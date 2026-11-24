@@ -1,0 +1,21 @@
+rules:
+  - id: lab-sqlite-dynamic-sql
+    mode: taint
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Consulta SQL construida con una cadena dinámica (f-string, .format o %)
+      y pasada a execute(). La entrada del cliente puede alterar la consulta.
+      Use parámetros: conn.execute("... WHERE x = ?", (valor,)).
+    metadata:
+      cwe: "CWE-89: SQL Injection"
+      asvs: "v5.0.0-1.2.4"
+      confidence: HIGH
+    pattern-sources:
+      - pattern: f"...{$X}..."
+      - pattern: '"...".format(...)'
+      - pattern: '"..." % ...'
+    pattern-sinks:
+      - patterns:
+          - pattern: $CONN.execute($Q, ...)
+          - focus-metavariable: $Q
