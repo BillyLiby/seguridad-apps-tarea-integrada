@@ -1,0 +1,36 @@
+flowchart LR
+  subgraph TB1["Frontera 1: Cliente no confiable (Internet / red local)"]
+    U["Usuario legítimo<br/>(alice / bob)"]
+    A["Administrador<br/>(admin)"]
+    X["Atacante<br/>(usuario autenticado malicioso o anónimo)"]
+  end
+  subgraph TB2["Frontera 2: Servidor de aplicación (proceso local uvicorn)"]
+    API["API REST FastAPI<br/>POST /login · GET/POST/DELETE /notes<br/>GET /search · GET /admin/users"]
+    AUTH["Capa de autenticación<br/>verifica JWT (HS256, exp, iss)"]
+    AUTHZ["Capa de autorización<br/>rol (admin) · propietario (objeto)"]
+    VAL["Validación Pydantic<br/>(tipos, longitudes, extra=forbid)"]
+    LOG["Trazas locales<br/>(logger 'trace')"]
+  end
+  subgraph TB3["Frontera 3: Persistencia (archivo local)"]
+    DB[("SQLite notes.db<br/>users (hash PBKDF2) · notes")]
+  end
+  subgraph TB4["Frontera 4: Variables de entorno / secretos"]
+    ENV["SECRET_KEY · DB_PATH"]
+  end
+  subgraph TB5["Frontera 5: Cadena de suministro"]
+    PYPI["PyPI: fastapi, starlette,<br/>PyJWT, pydantic, uvicorn"]
+  end
+  U -- "1 credenciales (HTTP)" --> API
+  A -- "1 credenciales (HTTP)" --> API
+  X -. "ataques: token falso, IDOR, SQLi, fuerza bruta" .-> API
+  U -- "2 Bearer JWT + solicitud" --> API
+  API --> AUTH --> AUTHZ
+  API --> VAL
+  AUTHZ -- "3 consultas SQL" --> DB
+  API -- "firma/verifica tokens" --> ENV
+  API --> LOG
+  PYPI -. "instalación (pip)" .-> API
+  classDef asset fill:#fff3cd,stroke:#b58900,color:#000
+  classDef threat fill:#f8d7da,stroke:#b02a37,color:#000
+  class DB,ENV asset
+  class X threat
