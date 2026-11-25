@@ -6,3 +6,5 @@ __pycache__/
 .terraform/
 .venv-runtime/
 .venv-semgrep/
+reports/*.tar
+reports/*.tar

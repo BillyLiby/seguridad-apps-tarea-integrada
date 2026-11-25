@@ -1,7 +1,7 @@
 {
   "components": [
     {
-      "bom-ref": "PyJWT==2.10.1",
+      "bom-ref": "PyJWT==2.15.1",
       "description": "JSON Web Token implementation in Python",
       "externalReferences": [
         {
@@ -18,9 +18,9 @@
         }
       ],
       "name": "PyJWT",
-      "purl": "pkg:pypi/pyjwt@2.10.1",
+      "purl": "pkg:pypi/pyjwt@2.15.1",
       "type": "library",
-      "version": "2.10.1"
+      "version": "2.15.1"
     },
     {
       "bom-ref": "PyYAML==6.0.4",
@@ -73,6 +73,48 @@
       "purl": "pkg:pypi/pyyaml@6.0.4",
       "type": "library",
       "version": "6.0.4"
+    },
+    {
+      "bom-ref": "annotated-doc==0.0.7",
+      "description": "Document parameters, class attributes, return types, and variables inline, with Annotated.",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: Documentation",
+          "type": "documentation",
+          "url": "https://github.com/fastapi/annotated-doc"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Issues",
+          "type": "issue-tracker",
+          "url": "https://github.com/fastapi/annotated-doc/issues"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Changelog",
+          "type": "release-notes",
+          "url": "https://github.com/fastapi/annotated-doc/release-notes.md"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Repository",
+          "type": "vcs",
+          "url": "https://github.com/fastapi/annotated-doc"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Homepage",
+          "type": "website",
+          "url": "https://github.com/fastapi/annotated-doc"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "annotated-doc",
+      "purl": "pkg:pypi/annotated-doc@0.0.7",
+      "type": "library",
+      "version": "0.0.7"
     },
     {
       "bom-ref": "annotated-types==0.8.0",
@@ -208,7 +250,7 @@
       "version": "0.4.6"
     },
     {
-      "bom-ref": "fastapi==0.115.6",
+      "bom-ref": "fastapi==0.165.0",
       "description": "FastAPI framework, high performance, easy to learn, fast to code, ready for production",
       "externalReferences": [
         {
@@ -245,9 +287,9 @@
         }
       ],
       "name": "fastapi",
-      "purl": "pkg:pypi/fastapi@0.115.6",
+      "purl": "pkg:pypi/fastapi@0.165.0",
       "type": "library",
-      "version": "0.115.6"
+      "version": "0.165.0"
     },
     {
       "bom-ref": "h11==0.16.0",
@@ -324,6 +366,33 @@
       "purl": "pkg:pypi/idna@3.20",
       "type": "library",
       "version": "3.20"
+    },
+    {
+      "bom-ref": "opentelemetry-api==1.45.2",
+      "description": "OpenTelemetry Python API",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: Repository",
+          "type": "vcs",
+          "url": "https://github.com/open-telemetry/opentelemetry-python"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Homepage",
+          "type": "website",
+          "url": "https://github.com/open-telemetry/opentelemetry-python/tree/main/opentelemetry-api"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "opentelemetry-api",
+      "purl": "pkg:pypi/opentelemetry-api@1.45.2",
+      "type": "library",
+      "version": "1.45.2"
     },
     {
       "bom-ref": "pip==25.0.1",
@@ -464,33 +533,33 @@
       "version": "1.2.4"
     },
     {
-      "bom-ref": "starlette==0.41.3",
+      "bom-ref": "starlette==1.10.0",
       "description": "The little ASGI library that shines.",
       "externalReferences": [
         {
           "comment": "from packaging metadata Project-URL: Documentation",
           "type": "documentation",
-          "url": "https://www.starlette.io/"
+          "url": "https://starlette.dev/"
         },
         {
           "comment": "from packaging metadata Project-URL: Source",
           "type": "other",
-          "url": "https://github.com/encode/starlette"
+          "url": "https://github.com/Kludex/starlette"
         },
         {
           "comment": "from packaging metadata Project-URL: Funding",
           "type": "other",
-          "url": "https://github.com/sponsors/encode"
+          "url": "https://github.com/sponsors/Kludex"
         },
         {
           "comment": "from packaging metadata Project-URL: Changelog",
           "type": "release-notes",
-          "url": "https://www.starlette.io/release-notes/"
+          "url": "https://starlette.dev/release-notes/"
         },
         {
           "comment": "from packaging metadata Project-URL: Homepage",
           "type": "website",
-          "url": "https://github.com/encode/starlette"
+          "url": "https://github.com/Kludex/starlette"
         }
       ],
       "licenses": [
@@ -498,17 +567,49 @@
           "license": {
             "id": "BSD-3-Clause"
           }
-        },
-        {
-          "license": {
-            "name": "License :: OSI Approved :: BSD License"
-          }
         }
       ],
       "name": "starlette",
-      "purl": "pkg:pypi/starlette@0.41.3",
+      "purl": "pkg:pypi/starlette@1.10.0",
       "type": "library",
-      "version": "0.41.3"
+      "version": "1.10.0"
+    },
+    {
+      "bom-ref": "typing-inspection==0.4.5",
+      "description": "Runtime typing introspection tools",
+      "externalReferences": [
+        {
+          "comment": "from packaging metadata Project-URL: Documentation",
+          "type": "documentation",
+          "url": "https://pydantic.github.io/typing-inspection/dev/"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Source",
+          "type": "other",
+          "url": "https://github.com/pydantic/typing-inspection"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Changelog",
+          "type": "release-notes",
+          "url": "https://github.com/pydantic/typing-inspection/blob/main/HISTORY.md"
+        },
+        {
+          "comment": "from packaging metadata Project-URL: Homepage",
+          "type": "website",
+          "url": "https://github.com/pydantic/typing-inspection"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "typing-inspection",
+      "purl": "pkg:pypi/typing-inspection@0.4.5",
+      "type": "library",
+      "version": "0.4.5"
     },
     {
       "bom-ref": "typing_extensions==4.16.0",
@@ -697,10 +798,16 @@
   ],
   "dependencies": [
     {
-      "ref": "PyJWT==2.10.1"
+      "dependsOn": [
+        "typing_extensions==4.16.0"
+      ],
+      "ref": "PyJWT==2.15.1"
     },
     {
       "ref": "PyYAML==6.0.4"
+    },
+    {
+      "ref": "annotated-doc==0.0.7"
     },
     {
       "ref": "annotated-types==0.8.0"
@@ -721,12 +828,16 @@
     {
       "dependsOn": [
         "PyYAML==6.0.4",
+        "annotated-doc==0.0.7",
+        "anyio==4.16.0",
+        "opentelemetry-api==1.45.2",
         "pydantic==2.10.4",
-        "starlette==0.41.3",
+        "starlette==1.10.0",
+        "typing-inspection==0.4.5",
         "typing_extensions==4.16.0",
         "uvicorn==0.34.0"
       ],
-      "ref": "fastapi==0.115.6"
+      "ref": "fastapi==0.165.0"
     },
     {
       "ref": "h11==0.16.0"
@@ -736,6 +847,12 @@
     },
     {
       "ref": "idna==3.20"
+    },
+    {
+      "dependsOn": [
+        "typing_extensions==4.16.0"
+      ],
+      "ref": "opentelemetry-api==1.45.2"
     },
     {
       "ref": "pip==25.0.1"
@@ -764,9 +881,16 @@
       "dependsOn": [
         "PyYAML==6.0.4",
         "anyio==4.16.0",
+        "opentelemetry-api==1.45.2",
         "typing_extensions==4.16.0"
       ],
-      "ref": "starlette==0.41.3"
+      "ref": "starlette==1.10.0"
+    },
+    {
+      "dependsOn": [
+        "typing_extensions==4.16.0"
+      ],
+      "ref": "typing-inspection==0.4.5"
     },
     {
       "ref": "typing_extensions==4.16.0"
@@ -796,7 +920,7 @@
     }
   ],
   "metadata": {
-    "timestamp": "2026-11-24T23:13:01.196241+00:00",
+    "timestamp": "2026-11-25T04:06:46.145241+00:00",
     "tools": {
       "components": [
         {
@@ -898,7 +1022,7 @@
       ]
     }
   },
-  "serialNumber": "urn:uuid:42afab40-602c-4b5a-962a-76a7d9ee3a61",
+  "serialNumber": "urn:uuid:a26f2b9f-9c0b-40ba-b859-f7cae5bb9139",
   "version": 1,
   "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
   "bomFormat": "CycloneDX",

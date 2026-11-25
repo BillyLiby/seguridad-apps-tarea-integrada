@@ -13,7 +13,7 @@ WORKDIR /app
 
 # Dependencias primero para aprovechar la cache de capas
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt && python -m pip uninstall -y pip setuptools wheel
 
 # Solo el codigo de la version SEGURA (nunca app_vulnerable)
 COPY app_segura ./app_segura
