@@ -1,0 +1,59 @@
+﻿diff --git a/app_vulnerable/main.py b/app_segura/main.py
+index 7055de5..402b13d 100644
+--- a/app_vulnerable/main.py
++++ b/app_segura/main.py
+@@ -1,9 +1,6 @@
+-"""!!! VERSION VULNERABLE - SOLO PARA DEMOSTRACION EN LABORATORIO !!!
++"""API de Notas - VERSION SEGURA (implementacion corregida).
+ 
+-NO desplegar ni exponer a Internet. Contiene 2 defectos deliberados:
+-  V1 (BOLA/IDOR, CWE-639): GET /notes/{id} no verifica el propietario.
+-  V2 (Inyeccion SQL, CWE-89): GET /search concatena la entrada en el SQL.
+-La version corregida esta en app_segura/.
++Laboratorio academico: cuentas y datos ficticios, solo para uso local.
+ """
+ import hashlib
+ import hmac
+@@ -86,7 +83,7 @@ async def lifespan(_: FastAPI):
+     yield
+ 
+ 
+-app = FastAPI(title="Notas API (VULNERABLE - LAB)", lifespan=lifespan)
++app = FastAPI(title="Notas API (segura)", lifespan=lifespan)
+ bearer = HTTPBearer(auto_error=False)
+ 
+ 
+@@ -199,7 +196,12 @@ def get_note(note_id: int, user: dict = Depends(current_user), conn: sqlite3.Con
+     row = conn.execute("SELECT id, owner, title, content FROM notes WHERE id = ?", (note_id,)).fetchone()
+     if row is None:
+         raise HTTPException(status_code=404, detail="Nota no encontrada")
+-    # DEFECTO V1: falta la verificacion de propietario (BOLA/IDOR)
++    # Control de autorizacion por objeto (BOLA/IDOR)
++    if row["owner"] != user["username"]:
++        trace.warning("[4] autorizacion por objeto DENEGADA: nota=%s dueno=%s solicitante=%s",
++                      note_id, row["owner"], user["username"])
++        raise HTTPException(status_code=403, detail="No tiene permiso sobre este recurso")
++    trace.info("[4] autorizacion por objeto OK: nota=%s", note_id)
+     return {"id": row["id"], "title": row["title"], "content": row["content"]}
+ 
+ 
+@@ -215,13 +217,15 @@ def delete_note(note_id: int, user: dict = Depends(current_user), conn: sqlite3.
+ 
+ @app.get("/search")
+ def search_notes(
+-    q: Annotated[str, Query(min_length=1, max_length=200)],
++    q: Annotated[str, Query(min_length=1, max_length=50)],
+     user: dict = Depends(current_user),
+     conn: sqlite3.Connection = Depends(db),
+ ):
+-    # DEFECTO V2: entrada del cliente concatenada al SQL (inyeccion SQL)
+-    sql = f"SELECT id, title FROM notes WHERE owner = '{user['username']}' AND title LIKE '%{q}%'"
+-    rows = conn.execute(sql).fetchall()
++    # Consulta parametrizada: la entrada del cliente nunca se concatena al SQL
++    rows = conn.execute(
++        "SELECT id, title FROM notes WHERE owner = ? AND title LIKE ?",
++        (user["username"], f"%{q}%"),
++    ).fetchall()
+     return [dict(r) for r in rows]
+ 
+ 
