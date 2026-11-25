@@ -1,8 +1,4 @@
+# Para ejecutar la aplicacion y sus pruebas (pytest)
 -r requirements.txt
 pytest==8.3.4
 httpx==0.28.1
-semgrep
-pip-audit
-cyclonedx-bom
-checkov
-pipdeptree

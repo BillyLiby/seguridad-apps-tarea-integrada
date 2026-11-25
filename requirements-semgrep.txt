@@ -1,0 +1,2 @@
+# Semgrep va en su propio entorno (.venv-semgrep): su opentelemetry-api~=1.37 choca con fastapi>=0.165
+semgrep==1.187.0

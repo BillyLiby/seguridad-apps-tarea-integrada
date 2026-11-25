@@ -1,0 +1,7 @@
+# Herramientas de analisis (SCA, SBOM, IaC). Se instalan en un entorno aparte (.venv-tools)
+# para no mezclarlas con las dependencias de la aplicacion.
+pip-audit==2.9.0
+cyclonedx-bom
+cyclonedx-python-lib[json-validation]
+checkov==3.4.10
+pipdeptree
