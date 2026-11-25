@@ -1,0 +1,4 @@
+{
+  "container": {"user": "10001", "base_image": "python:3.12-slim-bookworm", "healthcheck": true},
+  "dependencies": ["fastapi==0.165.0", "uvicorn[standard]==0.34.0"]
+}

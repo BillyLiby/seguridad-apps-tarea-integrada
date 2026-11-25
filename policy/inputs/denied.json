@@ -1,0 +1,4 @@
+{
+  "container": {"user": "root", "base_image": "python:latest", "healthcheck": false},
+  "dependencies": ["fastapi"]
+}

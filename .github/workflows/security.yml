@@ -1,0 +1,141 @@
+name: Seguridad CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SECRET_KEY: "clave-solo-para-ci-de-laboratorio-0123456789"
+
+# Convencion: los pasos "ADVERTENCIA" nunca bloquean (continue-on-error / || true).
+# Los pasos "BLOQUEO" devuelven codigo de salida distinto de 0 y detienen el flujo.
+jobs:
+  pruebas:
+    name: "Puerta 1 - Pruebas de seguridad (BLOQUEA)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt pytest==8.3.4 httpx==0.28.1
+      - name: BLOQUEO - falla cualquier prueba de seguridad
+        run: pytest
+
+  sast:
+    name: "Puerta 2 - Semgrep (ERROR bloquea, WARNING advierte)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install semgrep==1.187.0
+      - name: ADVERTENCIA - hallazgos WARNING/INFO (no bloquean)
+        continue-on-error: true
+        run: semgrep scan --metrics=off --config p/python --config semgrep/rules --severity WARNING --severity INFO app_segura
+      - name: BLOQUEO - hallazgos de severidad ERROR
+        run: semgrep scan --metrics=off --config p/python --config semgrep/rules --severity ERROR --error --json -o semgrep_ci.json app_segura
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-reporte
+          path: semgrep_ci.json
+          if-no-files-found: ignore
+
+  sca:
+    name: "Puerta 3 - Dependencias con vulnerabilidades (BLOQUEA)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit==2.9.0
+      - name: Reporte JSON (no bloquea, solo genera evidencia)
+        continue-on-error: true
+        run: pip-audit -r requirements.txt -f json -o pip-audit_ci.json
+      - name: BLOQUEO - cualquier vulnerabilidad conocida en dependencias de ejecucion
+        run: pip-audit -r requirements.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pip-audit-reporte
+          path: pip-audit_ci.json
+          if-no-files-found: ignore
+
+  politica:
+    name: "Puerta 4 - Politica OPA de configuracion y dependencias (BLOQUEA)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generar entrada desde Dockerfile y requirements.txt reales
+        run: python tools/build_policy_input.py
+      - name: Pruebas unitarias de la politica
+        run: docker run --rm -v "$PWD/policy:/p" openpolicyagent/opa:1.0.0 test /p/deploy.rego /p/deploy_test.rego -v
+      - name: ADVERTENCIA - avisos de la politica (no bloquean)
+        run: docker run --rm -v "$PWD/policy:/p" openpolicyagent/opa:1.0.0 eval -i /p/inputs/actual.json -d /p/deploy.rego "data.lab.deploy.warn" --format pretty
+      - name: BLOQUEO - cualquier "deny" falla el pipeline (--fail-defined => codigo de salida 1)
+        run: docker run --rm -v "$PWD/policy:/p" openpolicyagent/opa:1.0.0 eval -i /p/inputs/actual.json -d /p/deploy.rego "data.lab.deploy.deny[_]" --fail-defined --format pretty
+
+  iac:
+    name: "Puerta 5 - Infraestructura como codigo con Checkov (BLOQUEA)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install checkov
+      - name: Demostracion - version insegura (se espera que falle; no bloquea)
+        continue-on-error: true
+        run: checkov -d terraform/insecure --framework terraform --compact --skip-check CKV2_AWS_5
+      - name: BLOQUEO - version corregida debe pasar todas las comprobaciones
+        run: checkov -d terraform/secure --framework terraform --compact --skip-check CKV2_AWS_5
+
+  contenedor:
+    name: "Puerta 6 - Imagen de contenedor con Trivy (HIGH/CRITICAL bloquea)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t notas-api:ci .
+      - name: ADVERTENCIA - severidad MEDIUM (no bloquea)
+        continue-on-error: true
+        run: docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity MEDIUM --ignore-unfixed notas-api:ci
+      - name: BLOQUEO - HIGH/CRITICAL con correccion disponible
+        run: docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 notas-api:ci
+
+  dast:
+    name: "DAST - OWASP ZAP Baseline contra el laboratorio local (informativo)"
+    runs-on: ubuntu-latest
+    needs: [pruebas]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Levantar la API de laboratorio en el propio runner (solo 127.0.0.1)
+        run: |
+          export DB_PATH="$RUNNER_TEMP/dast.db"
+          python -c "from app_segura.main import init_db; init_db()"
+          nohup uvicorn app_segura.main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
+          for i in $(seq 1 20); do curl -sf http://127.0.0.1:8000/health && break; sleep 1; done
+      - name: ADVERTENCIA - ZAP Baseline (alertas informativas, no bloquean)
+        run: |
+          mkdir -p zap && chmod 777 zap
+          docker run --rm --network host -v "$PWD/zap:/zap/wrk:rw" ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://127.0.0.1:8000 -r zap_baseline.html -J zap_baseline.json -I
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-reporte
+          path: zap/
+          if-no-files-found: ignore
